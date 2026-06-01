@@ -1,0 +1,15 @@
+package.json
+dist
+bun.lock
+yarn.lock
+src/api
+package-lock.json
+.gitignore
+.husky
+.prettierignore
+public
+!public/index.html
+!public/manifest.json
+pnpm-lock.yaml
+.next
+next-sitemap.config.js
