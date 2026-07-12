@@ -12,3 +12,111 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model User {
+  id        String   @id @default(uuid())
+  firebaseUid String @unique          // Firebase Auth UID
+  email     String   @unique
+  name      String?
+  avatar    String?
+  createdAt DateTime @default(now())
+
+  snippets  Snippet[]
+
+  @@map("users")
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  slug      String   @unique          // dùng cho URL: /category/ui-sections
+  icon      String?
+  createdAt DateTime @default(now())
+
+  snippets  Snippet[]
+
+  @@map("categories")
+}
+
+model Tag {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  slug      String   @unique          // dùng cho URL: /tag/hero
+  createdAt DateTime @default(now())
+
+  snippets  SnippetTag[]
+
+  @@map("tags")
+}
+
+model Snippet {
+  id          String   @id @default(uuid())
+  title       String
+  description String?                 // mô tả đầy đủ (30 từ đầu dùng ở listing)
+  thumbnail   String?                 // ảnh đại diện chính hiển thị trên card
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt     // "chỉnh sửa X ngày trước" lấy từ đây
+
+  // Relations
+  authorId    String
+  author      User         @relation(fields: [authorId], references: [id])
+
+  categoryId  String
+  category    Category     @relation(fields: [categoryId], references: [id])
+
+  tags        SnippetTag[]
+  files       SnippetFile[]
+  images      SnippetImage[]
+  versions    SnippetVersion[]
+
+  @@map("snippets")
+}
+
+model SnippetTag {
+  snippetId String
+  tagId     String
+
+  snippet   Snippet @relation(fields: [snippetId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([snippetId, tagId])
+  @@map("snippet_tags")
+}
+
+model SnippetFile {
+  id        String   @id @default(uuid())
+  language  String                    // "html" | "css" | "js" | "ts" | "php" | "tsx"...
+  content   String                    // nội dung code
+  order     Int      @default(0)      // thứ tự hiển thị tab
+
+  snippetId String
+  snippet   Snippet  @relation(fields: [snippetId], references: [id], onDelete: Cascade)
+
+  @@map("snippet_files")
+}
+
+model SnippetImage {
+  id        String   @id @default(uuid())
+  url       String                    // URL ảnh (upload lên storage)
+  caption   String?                   // mô tả ảnh (optional)
+  order     Int      @default(0)      // thứ tự trong slide gallery
+
+  snippetId String
+  snippet   Snippet  @relation(fields: [snippetId], references: [id], onDelete: Cascade)
+
+  @@map("snippet_images")
+}
+
+model SnippetVersion {
+  id          String   @id @default(uuid())
+  version     Int                     // 1, 2, 3...
+  title       String                  // snapshot title tại thời điểm đó
+  description String?                 // snapshot description
+  files       Json                    // snapshot toàn bộ files dưới dạng JSON array
+  createdAt   DateTime @default(now())
+
+  snippetId   String
+  snippet     Snippet  @relation(fields: [snippetId], references: [id], onDelete: Cascade)
+
+  @@map("snippet_versions")
+}
