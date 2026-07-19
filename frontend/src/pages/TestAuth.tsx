@@ -1,13 +1,17 @@
-import { useState } from 'react';
 import {
-  signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
 } from 'firebase/auth';
+import { useState } from 'react';
+
 import { auth } from '../lib/firebase';
 
 export default function TestAuth() {
   const [token, setToken] = useState<string>('');
   const [result, setResult] = useState<string>('');
+
+  const getErrorMessage = (error: unknown) =>
+    error instanceof Error ? error.message : 'Unknown error';
 
   const handleRegister = async () => {
     try {
@@ -19,8 +23,8 @@ export default function TestAuth() {
       const idToken = await userCredential.user.getIdToken();
       setToken(idToken);
       setResult('✅ Đăng ký thành công! Token đã được lấy.');
-    } catch (err: any) {
-      setResult(`❌ Lỗi: ${err.message}`);
+    } catch (err: unknown) {
+      setResult(`❌ Lỗi: ${getErrorMessage(err)}`);
     }
   };
 
@@ -34,8 +38,8 @@ export default function TestAuth() {
       const idToken = await userCredential.user.getIdToken();
       setToken(idToken);
       setResult('✅ Đăng nhập thành công! Token đã được lấy.');
-    } catch (err: any) {
-      setResult(`❌ Lỗi: ${err.message}`);
+    } catch (err: unknown) {
+      setResult(`❌ Lỗi: ${getErrorMessage(err)}`);
     }
   };
 
@@ -48,8 +52,8 @@ export default function TestAuth() {
       });
       const data = await res.json();
       setResult(`✅ API response: ${JSON.stringify(data, null, 2)}`);
-    } catch (err: any) {
-      setResult(`❌ API lỗi: ${err.message}`);
+    } catch (err: unknown) {
+      setResult(`❌ API lỗi: ${getErrorMessage(err)}`);
     }
   };
 
