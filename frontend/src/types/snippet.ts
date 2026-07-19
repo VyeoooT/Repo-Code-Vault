@@ -42,3 +42,18 @@ export interface SnippetQueryParams {
   categoryId?: string;
   search?: string;
 }
+
+export interface SnippetFileInput {
+  language: string;
+  content: string;
+  order: number;
+}
+
+export interface UpsertSnippetPayload {
+  title: string;
+  description?: string;
+  thumbnail?: string;
+  categoryId: string;
+  tagIds: string[];
+  files: SnippetFileInput[];
+}
