@@ -1,6 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import type { AuthenticatedRequest } from './common/types/authenticated-request';
+
+jest.mock('./config/firebase.config', () => ({
+  adminAuth: {
+    verifyIdToken: jest.fn(),
+  },
+}));
 
 describe('AppController', () => {
   let appController: AppController;
@@ -8,15 +14,21 @@ describe('AppController', () => {
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
-      providers: [AppService],
     }).compile();
 
     appController = app.get<AppController>(AppController);
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+  describe('profile', () => {
+    it('should return current user payload', () => {
+      const request = {
+        user: {
+          uid: 'firebase-uid',
+          email: 'user@example.com',
+        },
+      } as AuthenticatedRequest;
+
+      expect(appController.getProfile(request)).toEqual(request.user);
     });
   });
 });
