@@ -256,6 +256,40 @@ export class SnippetsService {
     });
   }
 
+  async addTags(id: string, tagIds: string[], user: DecodedIdToken) {
+    const snippet = await this.getOwnedSnippet(id, user.uid);
+    const uniqueTagIds = this.uniqueTagIds(tagIds);
+
+    await this.ensureTagsExist(uniqueTagIds);
+
+    await this.prisma.snippetTag.createMany({
+      data: uniqueTagIds.map((tagId) => ({
+        snippetId: snippet.id,
+        tagId,
+      })),
+      skipDuplicates: true,
+    });
+
+    return this.findOne(snippet.id);
+  }
+
+  async removeTag(id: string, tagId: string, user: DecodedIdToken) {
+    const snippet = await this.getOwnedSnippet(id, user.uid);
+
+    const relation = await this.prisma.snippetTag.deleteMany({
+      where: {
+        snippetId: snippet.id,
+        tagId,
+      },
+    });
+
+    if (relation.count === 0) {
+      throw new NotFoundException('Snippet tag relation not found');
+    }
+
+    return this.findOne(snippet.id);
+  }
+
   async remove(id: string, user: DecodedIdToken) {
     const snippet = await this.getOwnedSnippet(id, user.uid);
 
@@ -297,20 +331,23 @@ export class SnippetsService {
       throw new BadRequestException('Category does not exist');
     }
 
-    const uniqueTagIds = this.uniqueTagIds(tagIds);
-    if (uniqueTagIds.length === 0) {
+    await this.ensureTagsExist(this.uniqueTagIds(tagIds));
+  }
+
+  private async ensureTagsExist(tagIds: string[]) {
+    if (tagIds.length === 0) {
       return;
     }
 
     const foundTagsCount = await this.prisma.tag.count({
       where: {
         id: {
-          in: uniqueTagIds,
+          in: tagIds,
         },
       },
     });
 
-    if (foundTagsCount !== uniqueTagIds.length) {
+    if (foundTagsCount !== tagIds.length) {
       throw new BadRequestException('One or more tags do not exist');
     }
   }

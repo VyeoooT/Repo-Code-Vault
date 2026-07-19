@@ -21,6 +21,7 @@ import {
 } from '@nestjs/swagger';
 import { FirebaseAuthGuard } from '../common/guards/firebase-auth.guard';
 import type { AuthenticatedRequest } from '../common/types/authenticated-request';
+import { AssignSnippetTagsDto } from './dto/assign-snippet-tags.dto';
 import { CreateSnippetDto } from './dto/create-snippet.dto';
 import { SnippetQueryDto } from './dto/snippet-query.dto';
 import { UpdateSnippetDto } from './dto/update-snippet.dto';
@@ -68,6 +69,39 @@ export class SnippetsController {
     @Req() request: AuthenticatedRequest,
   ) {
     return this.snippetsService.update(id, dto, request.user);
+  }
+
+  @Post(':id/tags')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Assign tags to snippet' })
+  @ApiResponse({ status: 200, description: 'Snippet tags assigned' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Snippet not found' })
+  addTags(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: AssignSnippetTagsDto,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.snippetsService.addTags(id, dto.tagIds, request.user);
+  }
+
+  @Delete(':id/tags/:tagId')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Remove tag from snippet' })
+  @ApiResponse({ status: 200, description: 'Snippet tag removed' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({
+    status: 404,
+    description: 'Snippet or tag relation not found',
+  })
+  removeTag(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Param('tagId', new ParseUUIDPipe()) tagId: string,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.snippetsService.removeTag(id, tagId, request.user);
   }
 
   @Delete(':id')
