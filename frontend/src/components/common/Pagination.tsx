@@ -19,7 +19,7 @@ export const Pagination = ({
         type="button"
         onClick={() => onPageChange(page - 1)}
         disabled={page <= 1}
-        className="rounded-md border border-slate-300 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+        className="cursor-pointer rounded-md border border-slate-300 px-3 py-2 text-sm transition-all duration-350 hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
       >
         Prev
       </button>
@@ -32,7 +32,7 @@ export const Pagination = ({
         type="button"
         onClick={() => onPageChange(page + 1)}
         disabled={page >= totalPages}
-        className="rounded-md border border-slate-300 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+        className="cursor-pointer rounded-md border border-slate-300 px-3 py-2 text-sm transition-all duration-350 hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
       >
         Next
       </button>
