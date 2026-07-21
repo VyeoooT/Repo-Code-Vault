@@ -37,7 +37,7 @@ const createExcerpt = (text?: string | null) => {
 export const SnippetCard = ({ snippet, viewMode }: SnippetCardProps) => {
   return (
     <article
-      className={`rounded-xl border border-slate-200 bg-white p-4 shadow-sm ${
+      className={`rounded-xl border border-slate-200 bg-white p-3 ${
         viewMode === 'list'
           ? 'flex flex-col gap-2 sm:flex-row sm:items-start'
           : ''
